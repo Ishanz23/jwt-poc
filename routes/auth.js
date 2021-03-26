@@ -7,11 +7,16 @@ const { registrationSchema, loginSchema } = require('../validations/validation')
 // Login
 router.post('/login', async (req, res) => {
   // Fields validation
+  let user
   const { error } = loginSchema.validate(req.body)
   if (error) return res.status(400).send({ error: error.details[0].message })
 
   //Check Login
-  const user = await User.findOne({ email: req.body.email })
+  try {
+    user = await User.findOne({ email: req.body.email })
+  } catch (err) {
+    return res.status(400).json({ error: err })
+  }
 
   if (!user) return res.status(401).send({ error: 'Email not found!' })
 
@@ -20,7 +25,7 @@ router.post('/login', async (req, res) => {
   if (!validPassword) return res.status(401).send({ error: 'Password is wrong' })
 
   // Create and assign a jwt
-  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY, { algorithm: 'HS512' })
+  const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET_KEY, { algorithm: 'HS512', expiresIn: '24h' })
   return res.header('AUTH-TOKEN', token).send({ message: `Hi! ${user.name}. Your token is ${token}` })
 })
 

@@ -10,8 +10,13 @@ const loginSchema = Joi.object({
   email: Joi.string().min(6).max(255).required().email(),
   password: Joi.string().min(4).max(1024).required(),
 })
+const blogSchema = Joi.object({
+  title: Joi.string().required(),
+  body: Joi.string().required(),
+})
 
 module.exports = {
   registrationSchema,
   loginSchema,
+  blogSchema,
 }
